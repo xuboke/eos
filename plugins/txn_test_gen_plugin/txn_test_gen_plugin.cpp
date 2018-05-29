@@ -216,7 +216,7 @@ struct txn_test_gen_plugin_impl {
       }
    }
 
-   void start_generation(const std::string& salt, const uint64_t& period, const uint64_t& batch_size, const uint32_t& expiration = 30) {
+   void start_generation(const std::string& salt, const uint64_t& period, const uint64_t& batch_size) {
       if(running)
          throw fc::exception(fc::invalid_operation_exception_code);
       if(period < 1 || period > 2500)
@@ -227,7 +227,6 @@ struct txn_test_gen_plugin_impl {
          throw fc::exception(fc::invalid_operation_exception_code);
 
       running = true;
-      expiration_time = expiration;
 
       //create the actions here
       act_a_to_b.account = N(txn.test.t);
@@ -311,7 +310,7 @@ struct txn_test_gen_plugin_impl {
             trx.actions.push_back(act_performer_to_c);
             trx.context_free_actions.emplace_back(action({}, config::null_account_name, "nonce", fc::raw::pack(nonce++)));
             trx.set_reference_block(reference_block_id);
-            trx.expiration = cc.head_block_time() + fc::seconds(expiration_time);
+            trx.expiration = cc.head_block_time() + fc::seconds(900);
             trx.max_net_usage_words = 100;
             trx.sign(performer_priv_key, chainid);
             push_transaction(trx);
@@ -321,7 +320,7 @@ struct txn_test_gen_plugin_impl {
             trx.actions.push_back(act_c_to_performer);
             trx.context_free_actions.emplace_back(action({}, config::null_account_name, "nonce", fc::raw::pack(nonce++)));
             trx.set_reference_block(reference_block_id);
-            trx.expiration = cc.head_block_time() + fc::seconds(expiration_time);
+            trx.expiration = cc.head_block_time() + fc::seconds(900);
             trx.max_net_usage_words = 100;
             trx.sign(c_priv_key, chainid);
             push_transaction(trx);
@@ -332,7 +331,7 @@ struct txn_test_gen_plugin_impl {
             trx.actions.push_back(act_a_to_b);
             trx.context_free_actions.emplace_back(action({}, config::null_account_name, "nonce", fc::raw::pack(nonce++)));
             trx.set_reference_block(reference_block_id);
-            trx.expiration = cc.head_block_time() + fc::seconds(expiration_time);
+            trx.expiration = cc.head_block_time() + fc::seconds(900);
             trx.max_net_usage_words = 100;
             trx.sign(a_priv_key, chainid);
             push_transaction(trx);
@@ -342,7 +341,7 @@ struct txn_test_gen_plugin_impl {
             trx.actions.push_back(act_b_to_a);
             trx.context_free_actions.emplace_back(action({}, config::null_account_name, "nonce", fc::raw::pack(nonce++)));
             trx.set_reference_block(reference_block_id);
-            trx.expiration = cc.head_block_time() + fc::seconds(expiration_time);
+            trx.expiration = cc.head_block_time() + fc::seconds(900);
             trx.max_net_usage_words = 100;
             trx.sign(b_priv_key, chainid);
             push_transaction(trx);
@@ -375,8 +374,6 @@ struct txn_test_gen_plugin_impl {
    action act_c_to_performer;
 
    int32_t txn_reference_block_lag;
-
-   uint32_t expiration_time;
 
    abi_serializer eosio_token_serializer = fc::json::from_string(eosio_token_abi).as<abi_def>();
 };
